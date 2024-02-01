@@ -1,0 +1,13 @@
+{
+  "name": "audience-targeting-modal",
+  "id": "audience-targeting-modal",
+  "description": "model to select audiences",
+  "version": "0.0.1",
+  "headerMenuButtons": [
+    {
+      "label": "Create Variations from Audiences",
+      "needsModal": true,
+      "id": "create-variations-from-audiences"
+    }
+  ]
+}
