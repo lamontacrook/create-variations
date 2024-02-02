@@ -24,3 +24,12 @@ extensions:
               annotations:
                 require-adobe-auth: true
                 final: true
+            create-variations:
+              function: actions/create-variations/index.js
+              web: 'yes'
+              runtime: nodejs:18
+              inputs:
+                LOG_LEVEL: debug
+              annotations:
+                require-adobe-auth: true
+                final: true

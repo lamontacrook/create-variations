@@ -27,14 +27,17 @@ export default function () {
   const [actionInvokeInProgress, setActionInvokeInProgress] = useState(false);
   const [actionResponse, setActionResponse] = useState();
   const [audiences, setAudiences] = useState([]);
+  const [selectedAudiences, setSelectedAudiences] = useState([]);
   const [activities, setActivities] = useState([]);
 
   let { fragment } = useParams();
-  console.log(fragment);
 
   useEffect(() => {
     (async () => {
       const guestConnection = await attach({ id: extensionId });
+      // const api = await guestConnection.host.dataApi.get();
+      // api.setValue('variations', 'test');
+  
       setGuestConnection(guestConnection);
       fetchActivities(guestConnection);
     })();
@@ -53,8 +56,8 @@ export default function () {
 
   if (!guestConnection) {
     return <Spinner />
-  } else if (actionInvokeInProgress) {
-    return <Spinner />
+  // } else if (actionInvokeInProgress) {
+    // return <Spinner />
     // } else if (actionResponse) {
     //   console.log(actionResponse);
   } else {
@@ -89,16 +92,33 @@ export default function () {
                 aria-label="ListView with controlled selection"
                 selectionMode="multiple"
                 items={audiences}
+                onSelectionChange={(selection) => {
+                  console.log(selectedAudiences);
+                  Object.entries(selection).forEach((item) => {
+                    console.log(item[1]); 
+                    // setSelectedAudiences([item[1], ...selectedAudiences]);
+                    if(!selectedAudiences.includes(item[1]))
+                      // setSelectedAudiences(old => [...old, item[1]])
+                      selectedAudiences.push(item[1]);
+                  });
+                  console.log(selectedAudiences); 
+                  // setSelectedAudiences(selection)
+                }}
               >
 
                 {(item) => (
-                  <Item key={item.id}>
+                  <Item key={item.name}>
                     {item.name}
                   </Item>
                 )}
 
               </ListView>
             </Flex>
+          </Flex>
+          <Flex width="100%" justifyContent="end" alignItems="center" marginTop="size-400">
+            <ButtonGroup align="end">
+              <Button variant="primary" onPress={createVariations}>Create Audiences</Button>
+            </ButtonGroup>
           </Flex>
         </Content >
       </Provider >
@@ -116,6 +136,50 @@ export default function () {
     //     </Content>
     //   </Provider>
     // );
+  }
+
+  async function createVariations() {
+    setActionInvokeInProgress(true);
+    const headers = {
+      'Authorization': 'Bearer ' + guestConnection.sharedContext.get('auth').imsToken,
+      'x-gw-ims-org-id': guestConnection.sharedContext.get('auth').imsOrg
+    };
+
+    const {model, path} = await guestConnection.host.contentFragment.getContentFragment();
+
+    const params = {
+      aemHost: `https://${guestConnection.sharedContext.get('aemHost')}`,
+      selectedAudiences: selectedAudiences,
+      modelPath: model.path,
+      fragmentPath: path.replace('/content/dam', '/api/assets')
+    };
+
+    console.log(`${params.aemHost}${params.fragmentPath}`);
+
+    const action = 'create-variations';
+
+    try {
+      // Invoke Adobe I/O Runtime action with the configured headers and parameters
+      const actionResponse = await actionWebInvoke(allActions[action], headers, params);
+
+      // Set the response from the Adobe I/O Runtime action
+      setActionResponse(actionResponse);
+      console.log(actionResponse);
+      // setAudiences(actionResponse);
+
+      console.log(`Response from ${action}:`, actionResponse);
+      onCloseHandler();
+      // guestConnection.host.modal.close(); //.then(() => window.location.reload(true));
+
+    } catch (e) {
+      // Log and store any errors
+      console.error(e)
+    }
+
+    // Set the action as no longer being invoked, so the loading spinner is hidden
+    setActionInvokeInProgress(false);
+
+
   }
 
   async function fetchAudiences(selection) {

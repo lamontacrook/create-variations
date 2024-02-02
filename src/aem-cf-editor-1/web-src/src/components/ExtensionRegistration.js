@@ -18,8 +18,9 @@ function ExtensionRegistration() {
               // @todo YOUR HEADER BUTTONS DECLARATION SHOULD BE HERE
               {
                 id: 'create-variations-from-audiences',
-                label: 'Create Variations from Audiences v3',
+                label: 'Create Variations from Audiences',
                 icon: 'OpenIn',
+                variant: 'action',
                 async onClick() {
                   const contentFragment = await guestConnection.host.contentFragment.getContentFragment();
                   console.log(contentFragment.path);
