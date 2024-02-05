@@ -5,13 +5,14 @@
 import React from "react";
 import {
   Flex,
-  ProgressCircle,
+  ProgressBar,
+  Text
 } from "@adobe/react-spectrum";
 
 export default function Spinner(props) {
   return (
     <Flex alignItems="center" justifyContent="center" height="50vh">
-      <ProgressCircle size="L" aria-label="Loading…" isIndeterminate />
+      <ProgressBar label="Fetching Audiences…" isIndeterminate/>
       {props.children}
     </Flex>
   );

@@ -1,0 +1,12 @@
+{
+  "Homepage Hero": {
+    "camping":"Tent Camping",
+    "ski": "Ski", 
+    "running": "Running"
+  },
+  "Image List": {
+    "new-zealand":"New Zealand", 
+    "tahoe": "Tahoe",
+    "san-diego": "San Diego"
+  }
+}

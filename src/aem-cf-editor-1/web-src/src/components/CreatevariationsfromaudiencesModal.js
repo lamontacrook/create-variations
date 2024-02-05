@@ -26,6 +26,9 @@ export default function () {
   const [guestConnection, setGuestConnection] = useState();
   const [actionInvokeInProgress, setActionInvokeInProgress] = useState(false);
   const [actionResponse, setActionResponse] = useState();
+  // const [model, setModel] = useState();
+  // const [cfPath, setCFPath] = useState();
+  // const [config, setConfig] = useState();
   const [audiences, setAudiences] = useState([]);
   const [selectedAudiences, setSelectedAudiences] = useState([]);
   const [activities, setActivities] = useState([]);
@@ -37,9 +40,11 @@ export default function () {
       const guestConnection = await attach({ id: extensionId });
       // const api = await guestConnection.host.dataApi.get();
       // api.setValue('variations', 'test');
-  
+
+      const { model, path } = await guestConnection.host.contentFragment.getContentFragment();
+      const config = `${path.split('/').slice(0, 4).join('/')}/site/configuration/configuration`;
       setGuestConnection(guestConnection);
-      fetchActivities(guestConnection);
+      fetchActivities(guestConnection, config);
     })();
   }, []);
 
@@ -47,17 +52,11 @@ export default function () {
     guestConnection.host.modal.close();
   };
 
-  let rows = [
-    { id: 1, name: 'Charizard' },
-    { id: 2, name: 'Blastoise' },
-    { id: 3, name: 'Venusaur' },
-    { id: 4, name: 'Pikachu' }
-  ];
-
   if (!guestConnection) {
     return <Spinner />
-  // } else if (actionInvokeInProgress) {
-    // return <Spinner />
+  } else if (actionInvokeInProgress) {
+    console.log('spinner')  
+    return <Spinner />
     // } else if (actionResponse) {
     //   console.log(actionResponse);
   } else {
@@ -77,7 +76,7 @@ export default function () {
               >
 
                 {(item) => (
-                  <Item key={item.id}>
+                  <Item key={item.name}>
                     {item.name}
                   </Item>
                 )}
@@ -93,16 +92,9 @@ export default function () {
                 selectionMode="multiple"
                 items={audiences}
                 onSelectionChange={(selection) => {
-                  console.log(selectedAudiences);
                   Object.entries(selection).forEach((item) => {
-                    console.log(item[1]); 
-                    // setSelectedAudiences([item[1], ...selectedAudiences]);
-                    if(!selectedAudiences.includes(item[1]))
-                      // setSelectedAudiences(old => [...old, item[1]])
-                      selectedAudiences.push(item[1]);
+                    if (!selectedAudiences.includes(item[1])) selectedAudiences.push(item[1]);
                   });
-                  console.log(selectedAudiences); 
-                  // setSelectedAudiences(selection)
                 }}
               >
 
@@ -139,13 +131,12 @@ export default function () {
   }
 
   async function createVariations() {
-    setActionInvokeInProgress(true);
     const headers = {
       'Authorization': 'Bearer ' + guestConnection.sharedContext.get('auth').imsToken,
       'x-gw-ims-org-id': guestConnection.sharedContext.get('auth').imsOrg
     };
 
-    const {model, path} = await guestConnection.host.contentFragment.getContentFragment();
+    const { model, path } = await guestConnection.host.contentFragment.getContentFragment();
 
     const params = {
       aemHost: `https://${guestConnection.sharedContext.get('aemHost')}`,
@@ -153,68 +144,61 @@ export default function () {
       modelPath: model.path,
       fragmentPath: path.replace('/content/dam', '/api/assets')
     };
-
+    console.log(selectedAudiences);
     console.log(`${params.aemHost}${params.fragmentPath}`);
 
     const action = 'create-variations';
 
     try {
-      // Invoke Adobe I/O Runtime action with the configured headers and parameters
       const actionResponse = await actionWebInvoke(allActions[action], headers, params);
-
-      // Set the response from the Adobe I/O Runtime action
       setActionResponse(actionResponse);
-      console.log(actionResponse);
-      // setAudiences(actionResponse);
-
       console.log(`Response from ${action}:`, actionResponse);
       onCloseHandler();
-      // guestConnection.host.modal.close(); //.then(() => window.location.reload(true));
-
     } catch (e) {
-      // Log and store any errors
       console.error(e)
     }
-
-    // Set the action as no longer being invoked, so the loading spinner is hidden
-    setActionInvokeInProgress(false);
-
-
   }
 
   async function fetchAudiences(selection) {
-    setActionInvokeInProgress(true);
-    const headers = {
-      'Authorization': 'Bearer ' + guestConnection.sharedContext.get('auth').imsToken,
-      'x-gw-ims-org-id': guestConnection.sharedContext.get('auth').imsOrg
-    };
+    console.log(selection.currentKey);
 
-    const params = {
-      aemHost: `https://${guestConnection.sharedContext.get('aemHost')}`
-    };
-
-    const action = 'fetch-audiences';
-
-    try {
-      // Invoke Adobe I/O Runtime action with the configured headers and parameters
-      const actionResponse = await actionWebInvoke(allActions[action], headers, params);
-
-      // Set the response from the Adobe I/O Runtime action
-      setActionResponse(actionResponse);
-      console.log(actionResponse);
-      setAudiences(actionResponse);
-
-      console.log(`Response from ${action}:`, actionResponse)
-    } catch (e) {
-      // Log and store any errors
-      console.error(e)
+    const array = Object.entries(actionResponse.data.configurationByPath.item.audienceMapping[selection.currentKey]).map(([key, val]) => {
+      return { id: key, name: val }
     }
+    );
+    setAudiences(array);
+    // setActionInvokeInProgress(true);
+    // const headers = {
+    //   'Authorization': 'Bearer ' + guestConnection.sharedContext.get('auth').imsToken,
+    //   'x-gw-ims-org-id': guestConnection.sharedContext.get('auth').imsOrg
+    // };
 
-    // Set the action as no longer being invoked, so the loading spinner is hidden
-    setActionInvokeInProgress(false);
+    // const params = {
+    //   aemHost: `https://${guestConnection.sharedContext.get('aemHost')}`
+    // };
+
+    // const action = 'fetch-audiences';
+
+    // try {
+    //   // Invoke Adobe I/O Runtime action with the configured headers and parameters
+    //   const actionResponse = await actionWebInvoke(allActions[action], headers, params);
+
+    //   // Set the response from the Adobe I/O Runtime action
+    //   setActionResponse(actionResponse);
+    //   console.log(actionResponse);
+    //   setAudiences(actionResponse);
+
+    //   console.log(`Response from ${action}:`, actionResponse)
+    // } catch (e) {
+    //   // Log and store any errors
+    //   console.error(e)
+    // }
+
+    // // Set the action as no longer being invoked, so the loading spinner is hidden
+    // setActionInvokeInProgress(false);
   }
 
-  async function fetchActivities(conn) {
+  async function fetchActivities(conn, config) {
     setActionInvokeInProgress(true);
     const headers = {
       'Authorization': 'Bearer ' + conn.sharedContext.get('auth').imsToken,
@@ -222,27 +206,28 @@ export default function () {
     };
 
     const params = {
-      aemHost: `https://${conn.sharedContext.get('aemHost')}`
+      aemHost: `https://${conn.sharedContext.get('aemHost')}`,
+      config: config
     };
 
     const action = 'fetch-activities';
 
     try {
-      // Invoke Adobe I/O Runtime action with the configured headers and parameters
       const actionResponse = await actionWebInvoke(allActions[action], headers, params);
-
-      // Set the response from the Adobe I/O Runtime action
       setActionResponse(actionResponse);
-      console.log(actionResponse);
-      setActivities(actionResponse);
+
+      let n = 0;
+      const items = Object.keys(actionResponse.data.configurationByPath.item.audienceMapping).map((item) => {
+        return { id: n++, name: item }
+      });
+
+      setActivities(items);
 
       console.log(`Response from ${action}:`, actionResponse)
     } catch (e) {
-      // Log and store any errors
       console.error(e)
     }
 
-    // Set the action as no longer being invoked, so the loading spinner is hidden
     setActionInvokeInProgress(false);
   }
 }
