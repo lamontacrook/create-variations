@@ -18,57 +18,65 @@ const fetch = require('node-fetch')
 const { Core } = require('@adobe/aio-sdk')
 const { errorResponse, getBearerToken, stringParameters, checkMissingRequestInputs } = require('../utils')
 
-// main function that will be executed by Adobe I/O Runtime
 async function main(params) {
-  // create a Logger
   const logger = Core.Logger('main', { level: params.LOG_LEVEL || 'info' })
 
   try {
-    // 'info' is the default level if not set
-    logger.info('Calling the main action')
+    logger.info('Calling the main action');
+    logger.debug(stringParameters(params));
 
-    // log parameters, only if params.LOG_LEVEL === 'debug'
-    logger.debug(stringParameters(params))
+    const requiredParams = [];//['aemHost', 'config'];
+    const requiredHeaders = ['Authorization'];
+    const errorMessage = checkMissingRequestInputs(params, requiredParams, requiredHeaders);
 
-    // check for missing request input parameters and headers
-    const requiredParams = [/* add required params */]
-    const requiredHeaders = ['Authorization']
-    const errorMessage = checkMissingRequestInputs(params, requiredParams, requiredHeaders)
-    if (errorMessage) {
-      // return and log client errors
-      return errorResponse(400, errorMessage, logger)
+    if (errorMessage) return errorResponse(400, 'oops ' + errorMessage, logger);
+
+    const { aemHost, config } = params;
+    const token = getBearerToken(params);
+    const apiEndpoint = `${aemHost}/graphql/execute.json/aem-demo-assets/gql-demo-audiences;path=${config}`;
+    logger.info(apiEndpoint);
+
+    const res = await fetch(apiEndpoint, {
+      method: 'get',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!res.ok) {
+      throw new Error('request to ' + apiEndpoint + ' failed with status code ' + res.status)
     }
 
-    // extract the user Bearer token from the Authorization header
-    const token = getBearerToken(params)
+    let content = await res.json();
 
-    // replace this with the api you want to access
-    // const apiEndpoint = 'https://adobeioruntime.net/api/v1'
+    const { targetApiKey, targetTenet } = content.data.configurationByPath.item;
 
-    // fetch content from external api endpoint
-    // const res = await fetch(apiEndpoint)
-    // if (!res.ok) {
-    // throw new Error('request to ' + apiEndpoint + ' failed with status code ' + res.status)
-    // }
-    // const content = await res.json()
+    if (targetApiKey && targetTenet) {
+      const targetApi = `https://mc.adobe.io/${targetTenet}/target/audiences/`;
+      logger.info('Calling Target');
+      const t = await fetch(targetApi, {
+        method: 'get',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/vnd.adobe.target.v3+json',
+          'x-api-key': '4bbd1f236f6c4b7ebf4c606d77081a91'
+        }
+      });
+      content = await t.json();
+    } 
+
+    logger.info(content);
     const response = {
       statusCode: 200,
-      body: [
-        { id: 1, name: 'Audience 1' },
-        { id: 2, name: 'Audience 2' },
-        { id: 3, name: 'Audience 3' },
-        { id: 4, name: 'Audience 4' }
-      ]
+      body: content
     };
 
-
-    // log the response status code
     logger.info(`${response.statusCode}: successful request`)
     return response
   } catch (error) {
-    // log any server errors
     logger.error(error)
-    // return with 500
     return errorResponse(500, 'server error', logger)
   }
 }

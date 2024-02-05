@@ -18,22 +18,20 @@ const fetch = require('node-fetch')
 const { Core } = require('@adobe/aio-sdk')
 const { errorResponse, getBearerToken, stringParameters, checkMissingRequestInputs } = require('../utils')
 
-async function main (params) {
+async function main(params) {
   const logger = Core.Logger('main', { level: params.LOG_LEVEL || 'info' })
 
   try {
     logger.info('Calling the main action');
     logger.debug(stringParameters(params));
 
-    //https://author-p124331-e1227315.adobeaemcloud.com/graphql/execute.json/aem-demo-assets/gql-demo-audiences;path=
-
     const requiredParams = [];//['aemHost', 'config'];
     const requiredHeaders = ['Authorization'];
     const errorMessage = checkMissingRequestInputs(params, requiredParams, requiredHeaders);
 
     if (errorMessage) return errorResponse(400, 'oops ' + errorMessage, logger);
-    
-    const {aemHost, config} = params;
+
+    const { aemHost, config } = params;
     const token = getBearerToken(params);
     const apiEndpoint = `${aemHost}/graphql/execute.json/aem-demo-assets/gql-demo-audiences;path=${config}`;
     logger.info(apiEndpoint);
@@ -49,8 +47,25 @@ async function main (params) {
     if (!res.ok) {
       throw new Error('request to ' + apiEndpoint + ' failed with status code ' + res.status)
     }
-    
-    const content = await res.json();
+
+    let content = await res.json();
+
+    const { targetApiKey, targetTenet } = content.data.configurationByPath.item;
+
+    if (targetApiKey && targetTenet) {
+      const targetApi = `https://mc.adobe.io/${targetTenet}/target/activities/`;
+      logger.info('Calling Target');
+      const t = await fetch(targetApi, {
+        method: 'get',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/vnd.adobe.target.v3+json',
+          'x-api-key': '4bbd1f236f6c4b7ebf4c606d77081a91'
+        }
+      });
+      content = await t.json();
+    } 
 
     logger.info(content);
     const response = {

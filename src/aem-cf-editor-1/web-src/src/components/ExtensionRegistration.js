@@ -41,6 +41,8 @@ async function ExtensionRegistration() {
                 guestConnection.host.modal.showUrl({
                   title: 'Create Variations from Audiences',
                   url: modalURL,
+                  loading: true,
+                  height:'70vh'
                 });
               },
             },

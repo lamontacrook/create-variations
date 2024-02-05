@@ -8,10 +8,12 @@ import {
   Flex,
   Provider,
   Content,
+  View,
   defaultTheme,
   Text,
   ButtonGroup,
   Button,
+  ActionButton,
   ListView,
   Item,
   Section
@@ -44,7 +46,7 @@ export default function () {
       const { model, path } = await guestConnection.host.contentFragment.getContentFragment();
       const config = `${path.split('/').slice(0, 4).join('/')}/site/configuration/configuration`;
       setGuestConnection(guestConnection);
-      fetchActivities(guestConnection, config);
+      fetchAudiences(guestConnection, config);
     })();
   }, []);
 
@@ -52,83 +54,62 @@ export default function () {
     guestConnection.host.modal.close();
   };
 
-  if (!guestConnection) {
-    return <Spinner />
-  } else if (actionInvokeInProgress) {
-    console.log('spinner')  
-    return <Spinner />
-    // } else if (actionResponse) {
-    //   console.log(actionResponse);
-  } else {
-    return (
-      <Provider theme={defaultTheme} colorScheme='light'>
-        <Content width="100%">
-          <Flex direction='row' width='100%' gap='size-100' minHeight='100%'>
-            <Flex direction='column' width='100%'>
-              <Text>Activities</Text>
-              <ListView
-                width="100%"
-                aria-label="ListView with controlled selection"
-                selectionMode="single"
-                items={activities}
-                selectionStyle="highlight"
-                onSelectionChange={(selection) => fetchAudiences(selection)}
-              >
+  return (
+    <Provider theme={defaultTheme} colorScheme='light'>
+      <View width="100%">
+        <Flex direction='row' width='100%' gap='size-100'>
+          {/* <Flex direction='column' width='100%'>
+            <Text>Activities</Text>
+            <ListView
+              width="100%"
+              aria-label="ListView with controlled selection"
+              selectionMode="single"
+              items={activities}
+              selectionStyle="highlight"
+              onSelectionChange={(selection) => fetchAudiences(selection)}
+            >
 
-                {(item) => (
-                  <Item key={item.name}>
-                    {item.name}
-                  </Item>
-                )}
+              {(item) => (
+                <Item key={item.name}>
+                  {item.name}
+                </Item>
+              )}
 
-              </ListView>
-            </Flex>
+            </ListView>
+          </Flex> */}
 
-            <Flex direction='column' width='100%'>
-              <Text>Audiences</Text>
-              <ListView
-                width="100%"
-                aria-label="ListView with controlled selection"
-                selectionMode="multiple"
-                items={audiences}
-                onSelectionChange={(selection) => {
-                  Object.entries(selection).forEach((item) => {
-                    if (!selectedAudiences.includes(item[1])) selectedAudiences.push(item[1]);
-                  });
-                }}
-              >
+          <Flex direction='column' width='100%'>
+            <Text>Audiences</Text>
+            <ListView
+              width="100%"
+              aria-label="ListView with controlled selection"
+              selectionMode="multiple"
+              items={audiences}
+              onSelectionChange={(selection) => {
+                Object.entries(selection).forEach((item) => {
+                  if (!selectedAudiences.includes(item[1])) selectedAudiences.push(item[1]);
+                });
+              }}
+            >
 
-                {(item) => (
-                  <Item key={item.name}>
-                    {item.name}
-                  </Item>
-                )}
+              {(item) => (
+                <Item key={item.name}>
+                  {item.name}
+                </Item>
+              )}
 
-              </ListView>
-            </Flex>
+            </ListView>
           </Flex>
-          <Flex width="100%" justifyContent="end" alignItems="center" marginTop="size-400">
-            <ButtonGroup align="end">
-              <Button variant="primary" onPress={createVariations}>Create Audiences</Button>
-            </ButtonGroup>
-          </Flex>
-        </Content >
-      </Provider >
+        </Flex>
+        <Flex width="100%" justifyContent="end" alignItems="center" marginTop="size-400">
+          <ButtonGroup align="end">
+            <ActionButton variant="primary" onPress={createVariations}>Create Variations</ActionButton>
+          </ButtonGroup>
+        </Flex>
+      </View >
+    </Provider >
+  );
 
-    );
-    // return (
-    //   <Provider theme={defaultTheme} colorScheme='light'>
-    //     <Content width="100%">
-    //       <Text>Create Variations from Audiences v2</Text>
-    //       <Flex width="100%" justifyContent="end" alignItems="center" marginTop="size-400">
-    //         <ButtonGroup align="end">
-    //           <Button variant="primary" onClick={onCloseHandler}>Close Modal</Button>
-    //         </ButtonGroup>
-    //       </Flex>
-    //     </Content>
-    //   </Provider>
-    // );
-  }
 
   async function createVariations() {
     const headers = {
@@ -159,43 +140,45 @@ export default function () {
     }
   }
 
-  async function fetchAudiences(selection) {
-    console.log(selection.currentKey);
+  async function fetchAudiences(conn, config) {
+    setActionInvokeInProgress(true);
+    const headers = {
+      'Authorization': 'Bearer ' + conn.sharedContext.get('auth').imsToken,
+      'x-gw-ims-org-id': conn.sharedContext.get('auth').imsOrg
+    };
 
-    const array = Object.entries(actionResponse.data.configurationByPath.item.audienceMapping[selection.currentKey]).map(([key, val]) => {
-      return { id: key, name: val }
+    const params = {
+      aemHost: `https://${conn.sharedContext.get('aemHost')}`,
+      config: config
+    };
+
+    const action = 'fetch-audiences';
+
+    try {
+      const actionResponse = await actionWebInvoke(allActions[action], headers, params);
+      setActionResponse(actionResponse);
+
+      if (actionResponse.hasOwnProperty('data')) {
+        let n = 0;
+        const items = actionResponse.data.configurationByPath.item.audiences.map((item) => {
+          return { id: n++, name: item }
+        });
+
+        setAudiences(items);
+      } else {
+        const items = actionResponse.audiences.filter((item) => {
+          if(item.name)
+            return { id: item.id, name: item.name }
+        });
+        setAudiences(items);
+      }
+
+      console.log(`Response from ${action}:`, actionResponse)
+    } catch (e) {
+      console.error(e)
     }
-    );
-    setAudiences(array);
-    // setActionInvokeInProgress(true);
-    // const headers = {
-    //   'Authorization': 'Bearer ' + guestConnection.sharedContext.get('auth').imsToken,
-    //   'x-gw-ims-org-id': guestConnection.sharedContext.get('auth').imsOrg
-    // };
-
-    // const params = {
-    //   aemHost: `https://${guestConnection.sharedContext.get('aemHost')}`
-    // };
-
-    // const action = 'fetch-audiences';
-
-    // try {
-    //   // Invoke Adobe I/O Runtime action with the configured headers and parameters
-    //   const actionResponse = await actionWebInvoke(allActions[action], headers, params);
-
-    //   // Set the response from the Adobe I/O Runtime action
-    //   setActionResponse(actionResponse);
-    //   console.log(actionResponse);
-    //   setAudiences(actionResponse);
-
-    //   console.log(`Response from ${action}:`, actionResponse)
-    // } catch (e) {
-    //   // Log and store any errors
-    //   console.error(e)
-    // }
-
-    // // Set the action as no longer being invoked, so the loading spinner is hidden
-    // setActionInvokeInProgress(false);
+    conn.host.modal.set({ loading: false });
+    setActionInvokeInProgress(false);
   }
 
   async function fetchActivities(conn, config) {
@@ -216,18 +199,25 @@ export default function () {
       const actionResponse = await actionWebInvoke(allActions[action], headers, params);
       setActionResponse(actionResponse);
 
-      let n = 0;
-      const items = Object.keys(actionResponse.data.configurationByPath.item.audienceMapping).map((item) => {
-        return { id: n++, name: item }
-      });
+      if (actionResponse.hasOwnProperty('data')) {
+        let n = 0;
+        const items = Object.keys(actionResponse.data.configurationByPath.item.audienceMapping).map((item) => {
+          return { id: n++, name: item }
+        });
 
-      setActivities(items);
+        setActivities(items);
+      } else {
+        const items = Object.entries(actionResponse.activities).map(([key, val]) => {
+          return { id: key, name: val.name }
+        });
+        setActivities(items);
+      }
 
       console.log(`Response from ${action}:`, actionResponse)
     } catch (e) {
       console.error(e)
     }
-
+    conn.host.modal.set({ loading: false });
     setActionInvokeInProgress(false);
   }
 }

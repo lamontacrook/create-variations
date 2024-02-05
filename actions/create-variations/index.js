@@ -1,60 +1,25 @@
-/*
-* <license header>
-*/
-
-/**
- * This is a sample action showcasing how to access an external API
- *
- * Note:
- * You might want to disable authentication and authorization checks against Adobe Identity Management System for a generic action. In that case:
- *   - Remove the require-adobe-auth annotation for this action in the manifest.yml of your application
- *   - Remove the Authorization header from the array passed in checkMissingRequestInputs
- *   - The two steps above imply that every client knowing the URL to this deployed action will be able to invoke it without any authentication and authorization checks against Adobe Identity Management System
- *   - Make sure to validate these changes against your security requirements before deploying the action
- */
-
-
 const fetch = require('node-fetch')
 const { Core } = require('@adobe/aio-sdk')
 const { errorResponse, getBearerToken, stringParameters, checkMissingRequestInputs } = require('../utils')
 
-// main function that will be executed by Adobe I/O Runtime
 async function main (params) {
-  // create a Logger
   const logger = Core.Logger('main', { level: params.LOG_LEVEL || 'info' })
 
   try {
-    // 'info' is the default level if not set
     logger.info('Calling the main action')
-
-    // log parameters, only if params.LOG_LEVEL === 'debug'
     logger.debug(stringParameters(params))
 
-    // check for missing request input parameters and headers
     const requiredParams = ['aemHost', 'selectedAudiences', 'modelPath', 'fragmentPath'];
     const requiredHeaders = ['Authorization']
     const errorMessage = checkMissingRequestInputs(params, requiredParams, requiredHeaders)
     if (errorMessage) {
-      // return and log client errors
       return errorResponse(400, errorMessage, logger)
     }
 
     const {aemHost, selectedAudiences, modelPath, fragmentPath} = params;
-    
-    // {
-    //   aemHost: `https://${guestConnection.sharedContext.get('aemHost')}`,
-    //   selectedAudiences: selectedAudiences,
-    //   modelPath: model.path,
-    //   fragmentPath: path.replace('/content/dam', '/api/assets')
-    // };
-
-    // extract the user Bearer token from the Authorization header
     const token = getBearerToken(params)
-
-    // // replace this with the api you want to access
     const apiEndpoint = `${aemHost}${fragmentPath}`;
 
-    // // fetch content from external api endpoint
     const res = await fetch(`${apiEndpoint}.json`, {
       method: 'get',
       headers: {
@@ -75,14 +40,18 @@ async function main (params) {
 
     Object.keys(elements.properties.elements).forEach((item) => {
       selectedAudiences.forEach((a) => {
-        const name = a.toLowerCase().replace(' ', '-');
+        const name = a.toLowerCase().replaceAll(' ', '-');
         elements.properties.elements[item].variations[name] = {
           title: a,
-          value: elements.properties.elements[item].title
+          value: elements.properties.elements[item].value
         };
         elements.properties.elements[item].variationsOrder.push(name);
       })
     });
+
+    logger.info('-----');
+    logger.info(JSON.stringify(elements));
+    logger.info('-----');
 
     const update = await fetch(apiEndpoint, {
       method: 'put',
@@ -107,12 +76,6 @@ async function main (params) {
     // return with 500
     return errorResponse(500, 'server error', logger)
   }
-}
-
-function addVariations(variations, element) {
-  const {title, value} = element.variations;
-  element.variations['audience-1'].title = title;
-  element.variations['audience-1'].value = value;
 }
 
 exports.main = main
