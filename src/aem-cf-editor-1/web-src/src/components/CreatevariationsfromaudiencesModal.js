@@ -12,28 +12,24 @@ import {
   defaultTheme,
   Text,
   ButtonGroup,
-  Button,
+  SearchField,
   ActionButton,
   ListView,
   Item,
-  Section
+  Divider
 } from "@adobe/react-spectrum";
 import actionWebInvoke from '../utils';
 import allActions from '../config.json';
 import { extensionId } from "./Constants";
-import Spinner from './Spinner';
 import { useParams } from "react-router-dom";
 
 export default function () {
   const [guestConnection, setGuestConnection] = useState();
   const [actionInvokeInProgress, setActionInvokeInProgress] = useState(false);
   const [actionResponse, setActionResponse] = useState();
-  // const [model, setModel] = useState();
-  // const [cfPath, setCFPath] = useState();
-  // const [config, setConfig] = useState();
+  const [searchValue, setSearchValue] = useState('')
   const [audiences, setAudiences] = useState([]);
   const [selectedAudiences, setSelectedAudiences] = useState([]);
-  const [activities, setActivities] = useState([]);
 
   let { fragment } = useParams();
 
@@ -57,50 +53,34 @@ export default function () {
   return (
     <Provider theme={defaultTheme} colorScheme='light'>
       <View width="100%">
-        <Flex direction='row' width='100%' gap='size-100'>
-          {/* <Flex direction='column' width='100%'>
-            <Text>Activities</Text>
-            <ListView
-              width="100%"
-              aria-label="ListView with controlled selection"
-              selectionMode="single"
-              items={activities}
-              selectionStyle="highlight"
-              onSelectionChange={(selection) => fetchAudiences(selection)}
-            >
+        <Flex direction='column' width='100%' gap={"size-100"}>
+          <SearchField
+            value={searchValue}
+            onChange={setSearchValue}
+            label="Audience Search" />
+          <Divider orientation="horizontal" size='S' />
+          <ListView
+            selectionStyle='checkbox'
+            width="100%"
+            aria-label="ListView with controlled selection"
+            selectionMode="multiple"
+            items={audiences}
+            onSelectionChange={(selection) => {
+              Object.entries(selection).forEach((item) => {
+                if (!selectedAudiences.includes(item[1])) selectedAudiences.push(item[1]);
+              });
+            }}
+          >
 
-              {(item) => (
-                <Item key={item.name}>
-                  {item.name}
-                </Item>
-              )}
+            {(item) => (
+              <Item key={item.name}>
+                {item.name}
+              </Item>
+            )}
 
-            </ListView>
-          </Flex> */}
-
-          <Flex direction='column' width='100%'>
-            <Text>Audiences</Text>
-            <ListView
-              width="100%"
-              aria-label="ListView with controlled selection"
-              selectionMode="multiple"
-              items={audiences}
-              onSelectionChange={(selection) => {
-                Object.entries(selection).forEach((item) => {
-                  if (!selectedAudiences.includes(item[1])) selectedAudiences.push(item[1]);
-                });
-              }}
-            >
-
-              {(item) => (
-                <Item key={item.name}>
-                  {item.name}
-                </Item>
-              )}
-
-            </ListView>
-          </Flex>
+          </ListView>
         </Flex>
+
         <Flex width="100%" justifyContent="end" alignItems="center" marginTop="size-400">
           <ButtonGroup align="end">
             <ActionButton variant="primary" onPress={createVariations}>Create Variations</ActionButton>
@@ -167,7 +147,7 @@ export default function () {
         setAudiences(items);
       } else {
         const items = actionResponse.audiences.filter((item) => {
-          if(item.name)
+          if (item.name)
             return { id: item.id, name: item.name }
         });
         setAudiences(items);
