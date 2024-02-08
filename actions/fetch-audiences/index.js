@@ -25,7 +25,7 @@ async function main(params) {
     logger.info('Calling the main action');
     logger.debug(stringParameters(params));
 
-    const requiredParams = [];//['aemHost', 'config'];
+    const requiredParams = ['aemHost', 'config'];
     const requiredHeaders = ['Authorization'];
     const errorMessage = checkMissingRequestInputs(params, requiredParams, requiredHeaders);
 
@@ -33,8 +33,7 @@ async function main(params) {
 
     const { aemHost, config } = params;
     const token = getBearerToken(params);
-    const apiEndpoint = `${aemHost}/graphql/execute.json/aem-demo-assets/gql-demo-audiences;path=${config}`;
-    logger.info(apiEndpoint);
+    const apiEndpoint = `${aemHost}/graphql/execute.json/bbw/gql-demo-audiences;path=${config}`;
 
     const res = await fetch(apiEndpoint, {
       method: 'get',
@@ -49,25 +48,22 @@ async function main(params) {
     }
 
     let content = await res.json();
-
     const { targetApiKey, targetTenet } = content.data.configurationByPath.item;
 
     if (targetApiKey && targetTenet) {
       const targetApi = `https://mc.adobe.io/${targetTenet}/target/audiences/`;
-      logger.info('Calling Target');
       const t = await fetch(targetApi, {
         method: 'get',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
           'Accept': 'application/vnd.adobe.target.v3+json',
-          'x-api-key': '4bbd1f236f6c4b7ebf4c606d77081a91'
+          'x-api-key': targetApiKey
         }
       });
       content = await t.json();
     } 
 
-    logger.info(content);
     const response = {
       statusCode: 200,
       body: content

@@ -1,1 +1,50 @@
-{"properties":{"elements":{"style":{"variationsOrder":["brand-loyalist"],"translatable":false,":type":"string","variations":{"brand-loyalist":{"title":"Brand Loyalist","value":"slider-list"}},"dataType":"string","title":"Style","multiValue":false,"value":"slider-list"},"imageListItems":{"variationsOrder":["brand-loyalist"],"translatable":false,":type":"string","variations":{"brand-loyalist":{"title":"Brand Loyalist","value":["/content/experience-fragments/wknd-site/language-masters/en/magazine/arctic-surfing/arctic-surfing","/content/experience-fragments/wknd-site/language-masters/en/magazine/san-diego-surf/san-diego-surf","/content/experience-fragments/wknd-site/language-masters/en/magazine/ski-touring/ski-touring","/content/experience-fragments/wknd-site/language-masters/en/magazine/western-australia/western-australia"]}},"dataType":"string","title":"Image List Items (Either choose Experience Fragments or Content Fragments for the Image List.)","multiValue":true,"value":["/content/experience-fragments/wknd-site/language-masters/en/magazine/arctic-surfing/arctic-surfing","/content/experience-fragments/wknd-site/language-masters/en/magazine/san-diego-surf/san-diego-surf","/content/experience-fragments/wknd-site/language-masters/en/magazine/ski-touring/ski-touring","/content/experience-fragments/wknd-site/language-masters/en/magazine/western-australia/western-australia"]}}}}
+{
+  "properties": {
+    "elements": {
+      "style": {
+        "variationsOrder": [
+          "brand-loyalist"
+        ],
+        "translatable": false,
+        ":type": "string",
+        "variations": {
+          "brand-loyalist": {
+            "title": "Brand Loyalist",
+            "value": "slider-list"
+          }
+        },
+        "dataType": "string",
+        "title": "Style",
+        "multiValue": false,
+        "value": "slider-list"
+      },
+      "imageListItems": {
+        "variationsOrder": [
+          "brand-loyalist"
+        ],
+        "translatable": false,
+        ":type": "string",
+        "variations": {
+          "brand-loyalist": {
+            "title": "Brand Loyalist",
+            "value": [
+              "/content/experience-fragments/wknd-site/language-masters/en/magazine/arctic-surfing/arctic-surfing",
+              "/content/experience-fragments/wknd-site/language-masters/en/magazine/san-diego-surf/san-diego-surf",
+              "/content/experience-fragments/wknd-site/language-masters/en/magazine/ski-touring/ski-touring",
+              "/content/experience-fragments/wknd-site/language-masters/en/magazine/western-australia/western-australia"
+            ]
+          }
+        },
+        "dataType": "string",
+        "title": "Image List Items (Either choose Experience Fragments or Content Fragments for the Image List.)",
+        "multiValue": true,
+        "value": [
+          "/content/experience-fragments/wknd-site/language-masters/en/magazine/arctic-surfing/arctic-surfing",
+          "/content/experience-fragments/wknd-site/language-masters/en/magazine/san-diego-surf/san-diego-surf",
+          "/content/experience-fragments/wknd-site/language-masters/en/magazine/ski-touring/ski-touring",
+          "/content/experience-fragments/wknd-site/language-masters/en/magazine/western-australia/western-australia"
+        ]
+      }
+    }
+  }
+}

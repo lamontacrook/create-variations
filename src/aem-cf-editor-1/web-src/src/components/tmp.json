@@ -1,0 +1,140 @@
+{
+  "properties": {
+    "elements": {
+      "preTitle": {
+        "variationsOrder": [
+          "brand-loyalist"
+        ],
+        "translatable": false,
+        ":type": "string",
+        "variations": {
+          "brand-loyalist": {
+            "title": "Brand Loyalist",
+            "value": "Pre-Title"
+          }
+        },
+        "dataType": "string",
+        "title": "Pre-Title",
+        "multiValue": false,
+        "value": "Pre-Title"
+      },
+      "link": {
+        "variationsOrder": [
+          "brand-loyalist"
+        ],
+        "translatable": false,
+        ":type": "string",
+        "variations": {
+          "brand-loyalist": {
+            "title": "Brand Loyalist",
+            "value": "/content/experience-fragments/wknd-site/us/en/magazine/western-australia/western-australia"
+          }
+        },
+        "dataType": "string",
+        "title": "Link",
+        "multiValue": false,
+        "value": "/content/experience-fragments/wknd-site/us/en/magazine/western-australia/western-australia"
+      },
+      "description": {
+        "variationsOrder": [
+          "brand-loyalist"
+        ],
+        "translatable": false,
+        ":type": "text/html",
+        "variations": {
+          "brand-loyalist": {
+            "title": "Brand Loyalist",
+            "value": "<p>The Australian West coast is a camper’s heaven. Endless miles of desert roads leading to secret beaches, vast canyons and crystal clear rivers, and the very few people you are likely to meet on your journey will be some of the most easy-going characters you’ll find anywhere in the world.</p>\n"
+          }
+        },
+        "dataType": "string",
+        "title": "Teaser Description",
+        "multiValue": false,
+        "value": "<p>The Australian West coast is a camper’s heaven. Endless miles of desert roads leading to secret beaches, vast canyons and crystal clear rivers, and the very few people you are likely to meet on your journey will be some of the most easy-going characters you’ll find anywhere in the world.</p>\n"
+      },
+      "style": {
+        "variationsOrder": [
+          "brand-loyalist"
+        ],
+        "translatable": false,
+        ":type": "string",
+        "variations": {
+          "brand-loyalist": {
+            "title": "Brand Loyalist",
+            "value": "featured"
+          }
+        },
+        "dataType": "string",
+        "title": "Style",
+        "multiValue": false,
+        "value": "featured"
+      },
+      "placeholder": {
+        "variationsOrder": [
+          "brand-loyalist"
+        ],
+        "translatable": false,
+        ":type": "string",
+        "variations": {
+          "brand-loyalist": {
+            "title": "Brand Loyalist"
+          }
+        },
+        "dataType": "string",
+        "title": "Call to Action",
+        "multiValue": false
+      },
+      "asset": {
+        "variationsOrder": [
+          "brand-loyalist"
+        ],
+        "translatable": false,
+        ":type": "string",
+        "variations": {
+          "brand-loyalist": {
+            "title": "Brand Loyalist",
+            "value": "/content/dam/aem-demo-assets/en/magazine/western-australia/adobestock-156407519.jpeg"
+          }
+        },
+        "dataType": "string",
+        "title": "Teaser Asset",
+        "multiValue": false,
+        "value": "/content/dam/aem-demo-assets/en/magazine/western-australia/adobestock-156407519.jpeg"
+      },
+      "title": {
+        "variationsOrder": [
+          "brand-loyalist"
+        ],
+        "translatable": false,
+        ":type": "string",
+        "variations": {
+          "brand-loyalist": {
+            "title": "Brand Loyalist",
+            "value": "Teaser Title"
+          }
+        },
+        "dataType": "string",
+        "title": "Teaser Title",
+        "multiValue": false,
+        "value": "Teaser Title"
+      },
+      "callToAction": {
+        "variationsOrder": [
+          "brand-loyalist"
+        ],
+        "translatable": false,
+        ":type": "string",
+        "variations": {
+          "brand-loyalist": {
+            "title": "Brand Loyalist",
+            "value": "Call to Action"
+          }
+        },
+        "dataType": "string",
+        "title": "Call to Action",
+        "multiValue": false,
+        "value": "Call to Action"
+      }
+    }
+  }
+}
