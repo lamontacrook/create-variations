@@ -24,12 +24,21 @@ import { extensionId } from "./Constants";
 import { useParams } from "react-router-dom";
 
 export default function () {
+  const updateSearchedAudience = (item) => {
+    console.log(searchedAudience);
+    if(item)
+      return setSearchedAudience([...searchedAudience, item]);
+    else
+      return [];
+  };
   const [guestConnection, setGuestConnection] = useState();
   const [actionInvokeInProgress, setActionInvokeInProgress] = useState(false);
   const [actionResponse, setActionResponse] = useState();
   const [searchValue, setSearchValue] = useState('')
   const [audiences, setAudiences] = useState([]);
-  const [selectedAudiences, setSelectedAudiences] = useState([]);
+  const [selectedAudiences, setSelectedAudiences] = useState('');
+  const [searchedAudience, setSearchedAudience] = useState(updateSearchedAudience);
+  // const [searchedAudience, setSearchedAudience] = React.useState(new Set());
 
   let { fragment } = useParams();
 
@@ -49,7 +58,7 @@ export default function () {
   const onCloseHandler = () => {
     guestConnection.host.modal.close();
   };
-
+  console.log(searchedAudience);
   return (
     <Provider theme={defaultTheme} colorScheme='light'>
       <View width="100%">
@@ -57,7 +66,8 @@ export default function () {
           <SearchField
             value={searchValue}
             onChange={setSearchValue}
-            label="Audience Search" />
+            label="Audience Search" 
+            onSubmit={updateSearchedAudience}/>
           <Divider orientation="horizontal" size='S' />
           <ListView
             selectionStyle='checkbox'
@@ -65,6 +75,7 @@ export default function () {
             aria-label="ListView with controlled selection"
             selectionMode="multiple"
             items={audiences}
+            selectedKeys={searchedAudience}
             onSelectionChange={(selection) => {
               Object.entries(selection).forEach((item) => {
                 if (!selectedAudiences.includes(item[1])) selectedAudiences.push(item[1]);

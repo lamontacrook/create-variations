@@ -33,7 +33,7 @@ async function main(params) {
 
     const { aemHost, config } = params;
     const token = getBearerToken(params);
-    const apiEndpoint = `${aemHost}/graphql/execute.json/bbw/gql-demo-audiences;path=${config}`;
+    const apiEndpoint = `${aemHost}/graphql/execute.json/aem-demo-assets/gql-demo-audiences;path=${config}`;
 
     const res = await fetch(apiEndpoint, {
       method: 'get',
@@ -62,7 +62,33 @@ async function main(params) {
         }
       });
       content = await t.json();
-    } 
+
+      const aud = content.audiences.reduce((accumulator, item, index) => {
+        if (item.name) { accumulator[index] = item.name }
+        return accumulator;
+      });
+
+      const elements = {
+        "properties": {
+          "elements": {
+            "audiences": {
+              "value": Object.values(aud)
+            }
+          }
+        }
+      };
+
+      const configuration = `${aemHost}${config.replace('/content/dam', '/api/assets')}`
+      const updateConfig = await fetch(configuration, {
+        method: 'put',
+        body: JSON.stringify(elements),
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      logger.debug(updateConfig);
+    }
 
     const response = {
       statusCode: 200,

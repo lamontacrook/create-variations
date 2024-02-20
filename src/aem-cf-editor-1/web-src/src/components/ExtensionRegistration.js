@@ -23,7 +23,7 @@ async function ExtensionRegistration() {
           return [
             {
               id: 'create-variations-from-audiences',
-              label: 'Create Variations from Audiences',
+              label: 'Create Variations from Audience',
               icon: 'OpenIn',
               variant: 'action',
               disabled: 'yes',
