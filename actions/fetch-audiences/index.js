@@ -25,15 +25,15 @@ async function main(params) {
     logger.info('Calling the main action');
     logger.debug(stringParameters(params));
 
-    const requiredParams = ['aemHost', 'config'];
+    const requiredParams = ['aemHost', 'config', 'fragment'];
     const requiredHeaders = ['Authorization'];
     const errorMessage = checkMissingRequestInputs(params, requiredParams, requiredHeaders);
 
     if (errorMessage) return errorResponse(400, 'oops ' + errorMessage, logger);
 
-    const { aemHost, config } = params;
+    const { aemHost, config, fragment } = params;
     const token = getBearerToken(params);
-    const apiEndpoint = `${aemHost}/graphql/execute.json/aem-demo-assets/gql-demo-audiences;path=${config}`;
+    const apiEndpoint = `${aemHost}/graphql/execute.json/aem-demo-assets/${fragment};path=${config}`;
 
     const res = await fetch(apiEndpoint, {
       method: 'get',

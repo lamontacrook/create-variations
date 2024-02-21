@@ -79,24 +79,3 @@ async function main (params) {
 }
 
 exports.main = main
-
-// {
-//   "properties": {
-//     "title": "foobar",
-//     "description": "foobar",
-//     "elements": {
-//       "title": {
-//         "value": "The HTML content of the element.",
-//         ":type": "string",
-//         "variations": {
-//           "example2": {
-//             "value": "The HTML content of the element.",
-//             ":type": "string"
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
-
-// https://author-p124903-e1228403.adobeaemcloud.com/api/assets/wknd-headless/site/en/home/components/hero

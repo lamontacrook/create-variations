@@ -38,16 +38,12 @@ export default function () {
   const [audiences, setAudiences] = useState([]);
   const [selectedAudiences, setSelectedAudiences] = useState('');
   const [searchedAudience, setSearchedAudience] = useState(updateSearchedAudience);
-  // const [searchedAudience, setSearchedAudience] = React.useState(new Set());
 
   let { fragment } = useParams();
 
   useEffect(() => {
     (async () => {
       const guestConnection = await attach({ id: extensionId });
-      // const api = await guestConnection.host.dataApi.get();
-      // api.setValue('variations', 'test');
-
       const { model, path } = await guestConnection.host.contentFragment.getContentFragment();
       const config = `${path.split('/').slice(0, 4).join('/')}/site/configuration/configuration`;
       setGuestConnection(guestConnection);
@@ -92,10 +88,11 @@ export default function () {
           </ListView>
         </Flex>
 
-        <Flex width="100%" justifyContent="end" alignItems="center" marginTop="size-400">
-          <ButtonGroup align="end">
+        <Flex width="100%" justifyContent="space-between" direction="row" marginTop="size-400">
+          <ButtonGroup>
             <ActionButton variant="primary" onPress={createVariations}>Create Variations</ActionButton>
           </ButtonGroup>
+          <Text maxHeight={"size-100"}>Version 1.0</Text>
         </Flex>
       </View >
     </Provider >
@@ -116,8 +113,6 @@ export default function () {
       modelPath: model.path,
       fragmentPath: path.replace('/content/dam', '/api/assets')
     };
-    console.log(selectedAudiences);
-    console.log(`${params.aemHost}${params.fragmentPath}`);
 
     const action = 'create-variations';
 
@@ -140,7 +135,8 @@ export default function () {
 
     const params = {
       aemHost: `https://${conn.sharedContext.get('aemHost')}`,
-      config: config
+      config: config,
+      fragment: 'gql-demo-configuration-v2'
     };
 
     const action = 'fetch-audiences';
@@ -162,46 +158,6 @@ export default function () {
             return { id: item.id, name: item.name }
         });
         setAudiences(items);
-      }
-
-      console.log(`Response from ${action}:`, actionResponse)
-    } catch (e) {
-      console.error(e)
-    }
-    conn.host.modal.set({ loading: false });
-    setActionInvokeInProgress(false);
-  }
-
-  async function fetchActivities(conn, config) {
-    setActionInvokeInProgress(true);
-    const headers = {
-      'Authorization': 'Bearer ' + conn.sharedContext.get('auth').imsToken,
-      'x-gw-ims-org-id': conn.sharedContext.get('auth').imsOrg
-    };
-
-    const params = {
-      aemHost: `https://${conn.sharedContext.get('aemHost')}`,
-      config: config
-    };
-
-    const action = 'fetch-activities';
-
-    try {
-      const actionResponse = await actionWebInvoke(allActions[action], headers, params);
-      setActionResponse(actionResponse);
-
-      if (actionResponse.hasOwnProperty('data')) {
-        let n = 0;
-        const items = Object.keys(actionResponse.data.configurationByPath.item.audienceMapping).map((item) => {
-          return { id: n++, name: item }
-        });
-
-        setActivities(items);
-      } else {
-        const items = Object.entries(actionResponse.activities).map(([key, val]) => {
-          return { id: key, name: val.name }
-        });
-        setActivities(items);
       }
 
       console.log(`Response from ${action}:`, actionResponse)
