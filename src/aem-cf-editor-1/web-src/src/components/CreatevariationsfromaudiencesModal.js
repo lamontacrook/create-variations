@@ -25,10 +25,17 @@ import { useParams } from "react-router-dom";
 
 export default function () {
   const updateSearchedAudience = (item) => {
-    console.log(searchedAudience);
-    if(item)
-      return setSearchedAudience([...searchedAudience, item]);
+    if (item)
+      return setSearchedAudience([...searchedAudience, currentKey]);
     else
+      return [];
+  };
+  const updateSelectedAudiences = (item) => {
+    if (item) {
+      const {currentKey} = item;
+      console.log(currentKey);
+      return setSelectedAudiences([...selectedAudiences, currentKey]);
+    } else
       return [];
   };
   const [guestConnection, setGuestConnection] = useState();
@@ -36,7 +43,7 @@ export default function () {
   const [actionResponse, setActionResponse] = useState();
   const [searchValue, setSearchValue] = useState('')
   const [audiences, setAudiences] = useState([]);
-  const [selectedAudiences, setSelectedAudiences] = useState('');
+  const [selectedAudiences, setSelectedAudiences] = useState(updateSelectedAudiences);
   const [searchedAudience, setSearchedAudience] = useState(updateSearchedAudience);
 
   let { fragment } = useParams();
@@ -54,7 +61,7 @@ export default function () {
   const onCloseHandler = () => {
     guestConnection.host.modal.close();
   };
-  console.log(searchedAudience);
+  console.log(selectedAudiences);
   return (
     <Provider theme={defaultTheme} colorScheme='light'>
       <View width="100%">
@@ -62,8 +69,8 @@ export default function () {
           <SearchField
             value={searchValue}
             onChange={setSearchValue}
-            label="Audience Search" 
-            onSubmit={updateSearchedAudience}/>
+            label="Audience Search"
+            onSubmit={updateSearchedAudience} />
           <Divider orientation="horizontal" size='S' />
           <ListView
             selectionStyle='checkbox'
@@ -71,28 +78,21 @@ export default function () {
             aria-label="ListView with controlled selection"
             selectionMode="multiple"
             items={audiences}
-            selectedKeys={searchedAudience}
-            onSelectionChange={(selection) => {
-              Object.entries(selection).forEach((item) => {
-                if (!selectedAudiences.includes(item[1])) selectedAudiences.push(item[1]);
-              });
-            }}
+            selectedKeys={selectedAudiences}
+            onSelectionChange={updateSelectedAudiences}
           >
-
             {(item) => (
               <Item key={item.name}>
                 {item.name}
               </Item>
             )}
-
           </ListView>
         </Flex>
-
         <Flex width="100%" justifyContent="space-between" direction="row" marginTop="size-400">
           <ButtonGroup>
             <ActionButton variant="primary" onPress={createVariations}>Create Variations</ActionButton>
           </ButtonGroup>
-          <Text maxHeight={"size-100"}>Version 1.0</Text>
+          <Text maxHeight={"size-100"}>Version 1.1</Text>
         </Flex>
       </View >
     </Provider >
