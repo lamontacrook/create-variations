@@ -13,7 +13,7 @@ extensions:
               inputs:
                 LOG_LEVEL: debug
               annotations:
-                require-adobe-auth: true
+                require-adobe-auth: false
                 final: true
             create-variations:
               function: actions/create-variations/index.js
@@ -22,5 +22,5 @@ extensions:
               inputs:
                 LOG_LEVEL: debug
               annotations:
-                require-adobe-auth: true
+                require-adobe-auth: false
                 final: true
