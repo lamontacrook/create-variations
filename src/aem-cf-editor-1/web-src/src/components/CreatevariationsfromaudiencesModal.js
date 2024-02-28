@@ -52,7 +52,7 @@ export default function () {
     (async () => {
       const guestConnection = await attach({ id: extensionId });
       const { model, path } = await guestConnection.host.contentFragment.getContentFragment();
-      const config = `${path.split('/').slice(0, 4).join('/')}/site/configuration/configuration`;
+      const config = '/content/dam/extension-configurations/extension-config';
       setGuestConnection(guestConnection);
       fetchAudiences(guestConnection, config);
     })();
@@ -92,7 +92,7 @@ export default function () {
           <ButtonGroup>
             <ActionButton variant="primary" onPress={createVariations}>Create Variations</ActionButton>
           </ButtonGroup>
-          <Text maxHeight={"size-100"}>Version 1.1</Text>
+          <Text maxHeight={"size-100"}>Version 1.3</Text>
         </Flex>
       </View >
     </Provider >
@@ -135,9 +135,9 @@ export default function () {
 
     const params = {
       aemHost: `https://${conn.sharedContext.get('aemHost')}`,
-      config: config,
-      fragment: 'gql-demo-configuration-v2'
-    };
+      query: 'variation-extension', 
+      config: config
+      };
 
     const action = 'fetch-audiences';
 
@@ -147,7 +147,7 @@ export default function () {
 
       if (actionResponse.hasOwnProperty('data')) {
         let n = 0;
-        const items = actionResponse.data.configurationByPath.item.audiences.map((item) => {
+        const items = actionResponse.data.audienceConfigurationList.items[0].audiences.map((item) => {
           return { id: n++, name: item }
         });
 
